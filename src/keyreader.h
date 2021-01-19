@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #define COLUMNS 5
+#define ROWS 5
 
 struct Keyboard{
     uint8_t size = 0x00; //0xROWS COLUMNS 
