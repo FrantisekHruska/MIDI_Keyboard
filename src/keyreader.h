@@ -59,8 +59,8 @@ void readKeyboard(struct Keyboard *_keyboard)
 
         DDRC = 1 << i;
         PORTC = 0 << i;
-        
-        _delay_ms(1);
+
+        _delay_us(150);
 
         getArray(_keyboard)[i] = PINA ^ 0xff;
         // PORTC = 1 << i;

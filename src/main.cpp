@@ -78,7 +78,7 @@ void setup()
 
   DDRC = 0x1f; // COLUMNS OUTPUT
 
-  uart0_init(UART_BAUD_SELECT(31250, 16000000L));
+  uart0_init(UART_BAUD_SELECT(9600, 16000000L));
 
   createKeymap();
 }
