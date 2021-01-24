@@ -4,7 +4,7 @@
 #define ROWS 5
 
 struct Keyboard{
-    uint8_t size = 0x00; // 0xROWS COLUMNS 
+    uint8_t size = 0x00; // 0xRADEK SLOUPEC (0xROWS COLUMNS)
     uint8_t output[ROWS]; // ROW output
 };
 
@@ -16,13 +16,12 @@ void readKeyboard(struct Keyboard* _keyboard){
         DDRC = 1 << i;
         PORTC = 0 << i;
 
-        _keyboard->output[i] = PINA;
+        _keyboard->output[i] = PINA^0xff;
         
-        
-        PORTC = 1 << i;
+        // PORTC = 1 << i;
 
-        DDRC = 0 << i; //INPUT
-        PORTC = 0 << i;
+        DDRC = 0; //INPUT
+        PORTC = 0;
 
     }
 }

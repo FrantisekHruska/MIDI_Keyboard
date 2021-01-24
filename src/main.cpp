@@ -12,13 +12,13 @@ void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t chann
 {
   switch (status)
   {
-  case 0:
+  case 1: // NoteOn
     uart0_putc(0x90 | channel);
     break;
-  case 1:
-    uart0_putc(0x80 | channel);
-    velocity = 0;
-    break;
+  // case 0: // NoteOff
+  //   uart0_putc(0x80 | channel);
+  //   velocity = 0;
+  //   break;
   default:
     return;
   }
@@ -29,14 +29,16 @@ void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t chann
 int processOutput(struct Keyboard *_keyboard)
 {
   uint8_t temp = 0x00;
+  uint8_t keystate;
+
   for (uint8_t i = 0; i < COLUMNS; i++)
   {
     temp = _keyboard->output[i];
 
     for (uint8_t j = 0; j < ROWS; j++)
     {
-      sendMIDI((temp & (1 << j)) >> j, keymap[(j << 4) | i], 127, 1);
-      //temp = temp >> 1;
+      keystate = ((temp & (0x01 << j)) >> j);
+      sendMIDI(keystate, keymap[(j << 4) | i], 127, 1);
     }
   }
 }
@@ -44,12 +46,13 @@ int processOutput(struct Keyboard *_keyboard)
 void createKeymap()
 {
   // create keymap
+  const uint8_t rowmap[ROWS] = {0, 4, 3, 2, 1};
   uint8_t tone = 60;
-  for (uint8_t i = 0; i < COLUMNS; i++)
+  for (uint8_t i = 0; i < ROWS; i++)
   {
-    for (uint8_t j = 0; j < ROWS; j++)
+    for (uint8_t j = 0; j < COLUMNS; j++)
     {
-      keymap[(j << 4) | i] = tone;
+      keymap[(rowmap[i] << 4) | (COLUMNS - 1) - j] = tone;
       tone++;
     }
   }
