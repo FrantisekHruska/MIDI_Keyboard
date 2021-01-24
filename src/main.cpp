@@ -15,10 +15,10 @@ void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t chann
   case 1: // NoteOn
     uart0_putc(0x90 | channel);
     break;
-  // case 0: // NoteOff
-  //   uart0_putc(0x80 | channel);
-  //   velocity = 0;
-  //   break;
+  case 0: // NoteOff
+    uart0_putc(0x80 | channel);
+    velocity = 0;
+    break;
   default:
     return;
   }
@@ -33,7 +33,7 @@ int processOutput(struct Keyboard *_keyboard)
 
   for (uint8_t i = 0; i < COLUMNS; i++)
   {
-    temp = _keyboard->output[i];
+    temp = compareRow(_keyboard, i);
 
     for (uint8_t j = 0; j < ROWS; j++)
     {
@@ -67,7 +67,6 @@ void setup()
 
   uart0_init(UART_BAUD_SELECT(9600, 16000000L));
 
-  keyboard.size = (ROWS << 4) | COLUMNS;
 
   createKeymap();
 }
