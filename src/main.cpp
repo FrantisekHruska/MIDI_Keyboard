@@ -57,7 +57,7 @@ void createKeymap()
 
 void setup()
 {
-  DDRA = 0x00; // ROWS INPUT_PULLUP
+  DDRA = 0x00; // ROWS INPUT
   PORTA = 0x00;
 
   DDRC = 0x1f; // COLUMNS OUTPUT

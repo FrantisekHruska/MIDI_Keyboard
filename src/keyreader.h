@@ -13,16 +13,16 @@ struct Keyboard{
 void readKeyboard(struct Keyboard* _keyboard){
 
     for (uint8_t i = 0; i < COLUMNS; i++){
-        DDRC = 0x1f;
+        DDRC = 1 << i;
         PORTC = 0 << i;
 
         _keyboard->output[i] = PINA;
         
         
-        // PORTC = 0x1f;
+        PORTC = 1 << i;
 
-        DDRC = 0x00; //INPUT
-        PORTC = 0x00;
+        DDRC = 0 << i; //INPUT
+        PORTC = 0 << i;
 
     }
 }
