@@ -12,18 +12,17 @@ struct Keyboard{
 
 void readKeyboard(struct Keyboard* _keyboard){
 
-    // Sets COLUMN to HIGH and saves row state to output
     for (uint8_t i = 0; i < COLUMNS; i++){
+        DDRC = 0x1f;
+        PORTC = 0 << i;
 
-        PORTA = 0;
-        PORTA = 1 << i;
-        _keyboard->output[i] = PINC;
+        _keyboard->output[i] = PINA;
+        
+        
+        // PORTC = 0x1f;
+
+        DDRC = 0x00; //INPUT
+        PORTC = 0x00;
+
     }
-    
-    // _delay_ms(1);
-    // PORTA = 0x01;
-    
-    // _keyboard->output[0] = PINC;
-    // _delay_ms(1);
-
 }
