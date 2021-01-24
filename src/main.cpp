@@ -78,7 +78,7 @@ void setup()
 
   DDRC = 0x1f; // COLUMNS OUTPUT
 
-  uart0_init(UART_BAUD_SELECT(9600, 16000000L));
+  uart0_init(UART_BAUD_SELECT(31250, 16000000L));
 
   createKeymap();
 }
@@ -86,12 +86,5 @@ void setup()
 void loop()
 {
   readKeyboard(&keyboard);
-  //switchArray(&keyboard);
-  //testvar = !testvar;
-  //getArray(&keyboard)[0] = testvar;
-
   processOutput(&keyboard);
-  //uart0_putc(getArrayOld(&keyboard)[0]);
-  //uart0_putc(getOn(&keyboard,0));
-  //_delay_ms(500);
 }

@@ -11,10 +11,6 @@ struct Keyboard
     uint8_t regs = 0x00;
 };
 
-uint8_t compareRow(struct Keyboard *_keyboard, uint8_t rownum)
-{
-    return _keyboard->output[rownum] ^ _keyboard->output_1[rownum];
-}
 
 uint8_t *getArray(struct Keyboard *_keyboard)
 {
@@ -38,10 +34,6 @@ uint8_t *getArrayOld(struct Keyboard *_keyboard)
     {
         return _keyboard->output_1;
     }
-}
-uint8_t *getRow(struct Keyboard *_keyboard, uint8_t rownum)
-{
-    return;
 }
 
 void switchArray(struct Keyboard *_keyboard)
@@ -67,9 +59,10 @@ void readKeyboard(struct Keyboard *_keyboard)
 
         DDRC = 1 << i;
         PORTC = 0 << i;
+        
+        _delay_ms(1);
 
         getArray(_keyboard)[i] = PINA ^ 0xff;
-
         // PORTC = 1 << i;
 
         DDRC = 0; //INPUT
