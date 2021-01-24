@@ -8,6 +8,8 @@ extern "C"
 uint8_t keymap[0xff];
 struct Keyboard keyboard;
 
+uint8_t testvar;
+
 void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t channel = 1)
 {
   switch (status)
@@ -33,13 +35,24 @@ int processOutput(struct Keyboard *_keyboard)
 
   for (uint8_t i = 0; i < COLUMNS; i++)
   {
-    temp = compareRow(_keyboard, i);
+    temp = getOn(_keyboard, i);
 
     for (uint8_t j = 0; j < ROWS; j++)
     {
       keystate = ((temp & (0x01 << j)) >> j);
-      sendMIDI(keystate, keymap[(j << 4) | i], 127, 1);
+      if (keystate)
+        sendMIDI(0, keymap[(j << 4) | i], 127, 1);
     }
+
+    temp = getOff(_keyboard, i);
+
+    for (uint8_t j = 0; j < ROWS; j++)
+    {
+      keystate = ((temp & (0x01 << j)) >> j);
+      if (keystate)
+        sendMIDI(1, keymap[(j << 4) | i], 127, 1);
+    }
+    keystate = 0;
   }
 }
 
@@ -67,12 +80,18 @@ void setup()
 
   uart0_init(UART_BAUD_SELECT(9600, 16000000L));
 
-
   createKeymap();
 }
 
 void loop()
 {
   readKeyboard(&keyboard);
+  //switchArray(&keyboard);
+  //testvar = !testvar;
+  //getArray(&keyboard)[0] = testvar;
+
   processOutput(&keyboard);
+  //uart0_putc(getArrayOld(&keyboard)[0]);
+  //uart0_putc(getOn(&keyboard,0));
+  //_delay_ms(500);
 }

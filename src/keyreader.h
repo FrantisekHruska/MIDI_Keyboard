@@ -18,7 +18,7 @@ uint8_t compareRow(struct Keyboard *_keyboard, uint8_t rownum)
 
 uint8_t *getArray(struct Keyboard *_keyboard)
 {
-    if (_keyboard->regs == (_keyboard->regs & 0x01))
+    if ((_keyboard->regs & 0x01))
     {
         return _keyboard->output_1;
     }
@@ -30,7 +30,7 @@ uint8_t *getArray(struct Keyboard *_keyboard)
 
 uint8_t *getArrayOld(struct Keyboard *_keyboard)
 {
-    if (_keyboard->regs == (_keyboard->regs & 0x01))
+    if ((_keyboard->regs & 0x01))
     {
         return _keyboard->output;
     }
@@ -46,17 +46,17 @@ uint8_t *getRow(struct Keyboard *_keyboard, uint8_t rownum)
 
 void switchArray(struct Keyboard *_keyboard)
 {
-    _keyboard->regs ^= 0x01;
+    _keyboard->regs =  _keyboard->regs ^ 0x01;
     return;
 };
 
 uint8_t getOn(struct Keyboard *_keyboard, uint8_t rownum)
 {
-    return getArrayOld(_keyboard)[rownum] & (getArray(_keyboard)[rownum] ^ 0xff);
+    return (getArrayOld(_keyboard)[rownum] & (getArray(_keyboard)[rownum] ^ 0xff));
 }
 uint8_t getOff(struct Keyboard *_keyboard, uint8_t rownum)
 {
-    return getArray(_keyboard)[rownum] & (getArrayOld(_keyboard)[rownum] ^ 0xff);
+    return (getArray(_keyboard)[rownum] & (getArrayOld(_keyboard)[rownum] ^ 0xff));
 }
 
 void readKeyboard(struct Keyboard *_keyboard)
