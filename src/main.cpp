@@ -8,8 +8,6 @@ extern "C"
 uint8_t keymap[0xff];
 struct Keyboard keyboard;
 
-uint8_t testvar;
-
 void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t channel = 1)
 {
   switch (status)
@@ -28,7 +26,7 @@ void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t chann
   uart0_putc(velocity);
 }
 
-int processOutput(struct Keyboard *_keyboard)
+void processOutput(struct Keyboard *_keyboard)
 {
   uint8_t temp = 0x00;
   uint8_t keystate;
@@ -52,39 +50,62 @@ int processOutput(struct Keyboard *_keyboard)
       if (keystate)
         sendMIDI(1, keymap[(j << 4) | i], 127, 1);
     }
-    keystate = 0;
   }
 }
 
-void createKeymap()
+void writeKeymap()
 {
   // create keymap
   const uint8_t rowmap[ROWS] = {0, 4, 3, 2, 1};
-  uint8_t tone = 60;
+  uint8_t tone = 60 + (keyboard.transpose * OCTAVE);
+
   for (uint8_t i = 0; i < ROWS; i++)
   {
     for (uint8_t j = 0; j < COLUMNS; j++)
     {
-      keymap[(rowmap[i] << 4) | (COLUMNS - 1) - j] = tone;
+      keymap[(rowmap[i] << 4) | ((COLUMNS - 1) - j)] = tone;
       tone++;
     }
   }
 }
 
+// void readTranspose() //, uint8_t status)
+// {
+//   button_state = (PINB & 0x01);
+
+//   if (button_state != last_button_state)
+//   {
+//     if (button_state){
+//       keyboard.transpose++;
+//     }
+//     writeKeymap(keyboard.transpose);
+//   }
+//   last_button_state = button_state;
+// }
+// uint8_t last_button_state = 0;
+
+
+
+
 void setup()
 {
+
   DDRA = 0x00; // ROWS INPUT
   PORTA = 0x00;
 
-  DDRC = 0x1f; // COLUMNS OUTPUT
+  DDRC = 0xff; // COLUMNS OUTPUT
 
-  uart0_init(UART_BAUD_SELECT(9600, 16000000L));
+  DDRB = 0x00;
+  PORTB = 0x00;
 
-  createKeymap();
+  uart0_init(UART_BAUD_SELECT(115200, 16000000L));
+
+  writeKeymap();
 }
 
 void loop()
 {
   readKeyboard(&keyboard);
   processOutput(&keyboard);
+  writeKeymap();
 }
