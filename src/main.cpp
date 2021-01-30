@@ -69,24 +69,6 @@ void writeKeymap()
   }
 }
 
-// void readTranspose() //, uint8_t status)
-// {
-//   button_state = (PINB & 0x01);
-
-//   if (button_state != last_button_state)
-//   {
-//     if (button_state){
-//       keyboard.transpose++;
-//     }
-//     writeKeymap(keyboard.transpose);
-//   }
-//   last_button_state = button_state;
-// }
-// uint8_t last_button_state = 0;
-
-
-
-
 void setup()
 {
 

@@ -55,22 +55,21 @@ uint8_t getOff(struct Keyboard *_keyboard, uint8_t rownum)
 }
 void readTranspose(struct Keyboard *_keyboard)
 {
-  _keyboard->transpose_buttons_state = _keyboard->transpose_buttons_state + (PINB & 0b00000011);
+    _keyboard->transpose_buttons_state = _keyboard->transpose_buttons_state + (PINB & 0b00000011);
 
-  if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
-  {
-    _delay_us(150);
-    if (_keyboard->transpose_buttons_state & 0x01)
-      _keyboard->transpose--;
-    
-    
-    if ((_keyboard->transpose_buttons_state & 0x02)>>1)
-      _keyboard->transpose++;
-    
-    // writeKeymap();
-  }
-  _keyboard->transpose_buttons_state <<= 2;
-  _keyboard->transpose_buttons_state &= 0b00001111;
+    if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
+    {
+        _delay_us(150);
+        if (_keyboard->transpose_buttons_state & 0x01)
+            _keyboard->transpose--;
+
+        if ((_keyboard->transpose_buttons_state & 0x02) >> 1)
+            _keyboard->transpose++;
+
+        // writeKeymap();
+    }
+    _keyboard->transpose_buttons_state <<= 2;
+    _keyboard->transpose_buttons_state &= 0b00001111;
 }
 // budi sloupce a cte radky
 void readKeyboard(struct Keyboard *_keyboard)
