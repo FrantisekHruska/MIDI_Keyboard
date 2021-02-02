@@ -29,7 +29,7 @@ void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t chann
 void processOutput(struct Keyboard *_keyboard)
 {
   uint8_t temp = 0x00;
-  uint8_t keystate;
+  // uint8_t keystate;
 
   for (uint8_t i = 0; i < COLUMNS; i++)
   {
@@ -37,18 +37,20 @@ void processOutput(struct Keyboard *_keyboard)
 
     for (uint8_t j = 0; j < ROWS; j++)
     {
-      keystate = ((temp & (0x01 << j)) >> j);
-      if (keystate)
-        sendMIDI(0, keymap[(j << 4) | i], 127, 1);
+      // keystate = ((temp & (0x01 << j)) >> j);
+      if ((temp & (0x01 << j)) >> j)
+        if (keymap[(j << 4) | i] >= 0 && keymap[(j << 4) | i] <= 127)
+          sendMIDI(0, keymap[(j << 4) | i], 127, 1);
     }
 
     temp = getOff(_keyboard, i);
 
     for (uint8_t j = 0; j < ROWS; j++)
     {
-      keystate = ((temp & (0x01 << j)) >> j);
-      if (keystate)
-        sendMIDI(1, keymap[(j << 4) | i], 127, 1);
+      // keystate = ((temp & (0x01 << j)) >> j);
+      if ((temp & (0x01 << j)) >> j)
+        if (keymap[(j << 4) | i] >= 0 && keymap[(j << 4) | i] <= 127)
+          sendMIDI(1, keymap[(j << 4) | i], 127, 1);
     }
   }
 }
@@ -77,7 +79,7 @@ void setup()
 
   DDRC = 0xff; // COLUMNS OUTPUT
 
-  DDRB = 0x00;
+  DDRB = 0x00; // TRANSPOSE INPUT
   PORTB = 0x00;
 
   uart0_init(UART_BAUD_SELECT(115200, 16000000L));

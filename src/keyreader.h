@@ -17,25 +17,17 @@ struct Keyboard
 uint8_t *getArray(struct Keyboard *_keyboard)
 {
     if (_keyboard->regs & 0x01)
-    {
         return _keyboard->output_1;
-    }
     else
-    {
         return _keyboard->output;
-    }
 }
 
 uint8_t *getArrayOld(struct Keyboard *_keyboard)
 {
     if (_keyboard->regs & 0x01)
-    {
         return _keyboard->output;
-    }
     else
-    {
         return _keyboard->output_1;
-    }
 }
 // strida promenou regs ktera urcuje do ktereho pole ulozit
 void switchArray(struct Keyboard *_keyboard)
@@ -71,10 +63,19 @@ void readTranspose(struct Keyboard *_keyboard)
     _keyboard->transpose_buttons_state <<= 2;
     _keyboard->transpose_buttons_state &= 0b00001111;
 }
+
+void limitTranspose(struct Keyboard *_keyboard, int8_t lowerLimit, int8_t upperLimit)
+{
+    if (_keyboard->transpose > upperLimit)
+        _keyboard->transpose = upperLimit;
+    if (_keyboard->transpose < lowerLimit)
+        _keyboard->transpose = lowerLimit;
+}
 // budi sloupce a cte radky
 void readKeyboard(struct Keyboard *_keyboard)
 {
     readTranspose(_keyboard);
+    limitTranspose(_keyboard, -5, 4);
     switchArray(_keyboard);
     for (uint8_t i = 0; i < COLUMNS; i++)
     {
