@@ -73,7 +73,7 @@ void writeKeymap()
 
 void setup()
 {
-
+  // Nastaveni pinu
   DDRA = 0x00; // ROWS INPUT
   PORTA = 0x00;
 
