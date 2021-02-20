@@ -8,7 +8,7 @@ extern "C"
 uint8_t keymap[0xff];
 struct Keyboard keyboard;
 
-void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t channel = 1)
+void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t channel = 8)
 {
   switch (status)
   {
@@ -40,7 +40,7 @@ void processOutput(struct Keyboard *_keyboard)
       // keystate = ((temp & (0x01 << j)) >> j);
       if ((temp & (0x01 << j)) >> j)
         if (keymap[(j << 4) | i] >= 0 && keymap[(j << 4) | i] <= 127)
-          sendMIDI(0, keymap[(j << 4) | i], 127, 1);
+          sendMIDI(0, keymap[(j << 4) | i], 127);
     }
 
     temp = getOff(_keyboard, i);
@@ -50,23 +50,27 @@ void processOutput(struct Keyboard *_keyboard)
       // keystate = ((temp & (0x01 << j)) >> j);
       if ((temp & (0x01 << j)) >> j)
         if (keymap[(j << 4) | i] >= 0 && keymap[(j << 4) | i] <= 127)
-          sendMIDI(1, keymap[(j << 4) | i], 127, 1);
+          sendMIDI(1, keymap[(j << 4) | i], 127);
     }
   }
 }
 
+// Tato funkce zapise do keymapu tony
 void writeKeymap()
 {
-  // create keymap
+  // Premapovani radku kvuli zapojeni
   const uint8_t rowmap[ROWS] = {0, 4, 3, 2, 1};
+
+  // Vytvori zakladni ton 
+  // posune ho o tolik oktav kolikrat byla zmacknuta transpozice
   uint8_t tone = 60 + (keyboard.transpose * OCTAVE);
 
+  // Zapise na prislusny radek a sloupec ton a zvysi ho o 1
   for (uint8_t i = 0; i < ROWS; i++)
   {
     for (uint8_t j = 0; j < COLUMNS; j++)
     {
-      keymap[(rowmap[i] << 4) | ((COLUMNS - 1) - j)] = tone;
-      tone++;
+      keymap[(rowmap[i] << 4) | ((COLUMNS - 1) - j)] = tone++;
     }
   }
 }

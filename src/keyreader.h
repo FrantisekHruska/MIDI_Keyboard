@@ -5,13 +5,13 @@
 
 #define OCTAVE 12
 
-// Hlavni struktura obsahujici promene a pole se kterymi pak program pracuje
+// Hlavni struktura obsahujici promene a pole se kterymi program pracuje
 struct Keyboard
 {
     // 0xRADEK SLOUPEC (0xROWS COLUMNS)
 
     // Dve pole na ukladani stavu matice
-    uint8_t output_1[ROWS]; 
+    uint8_t output_1[ROWS];
     uint8_t output_2[ROWS];
 
     // Promena regs ktera se meni z nuly na jednicku a tim meni do jakeho pole se uklada prectena matice (ouput_1 output_2)
@@ -68,7 +68,7 @@ void limitTranspose(struct Keyboard *_keyboard, int8_t lowerLimit, int8_t upperL
 // Cte tlacitka na transpozici
 void readTranspose(struct Keyboard *_keyboard)
 {
-    _keyboard->transpose_buttons_state = _keyboard->transpose_buttons_state + (PINB & 0b00000011);
+    _keyboard->transpose_buttons_state += (PINB & 0b00000011);
 
     if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
     {
@@ -102,10 +102,10 @@ void readKeyboard(struct Keyboard *_keyboard)
 
         _delay_us(150); // debounce delay
 
-        getArray(_keyboard)[i] = ~PINA; // Prectu co je na PINA a ulozim do pole ktere je zrovna aktivni podle promene regs
+        getArray(_keyboard)[i] = PINA ^ 0xff; // Prectu co je na PINA a ulozim do pole ktere je zrovna aktivni podle promene regs
         // PORTC = 1 << i;
 
-        DDRC = 0;  // Nastavim radek jako INPUT
+        DDRC = 0; // Nastavim radek jako INPUT
         PORTC = 0;
     }
 }
