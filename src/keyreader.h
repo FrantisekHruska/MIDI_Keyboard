@@ -102,7 +102,7 @@ void readKeyboard(struct Keyboard *_keyboard)
 
         _delay_us(150); // debounce delay
 
-        getArray(_keyboard)[i] = PIND ^ 0xff; // Prectu co je na PINA a ulozim do pole ktere je zrovna aktivni podle promene regs
+        getArray(_keyboard)[i] = (PIND >> 3) ^ 0xff; // Prectu co je na PINA a ulozim do pole ktere je zrovna aktivni podle promene regs
         // PORTC = 1 << i;
 
         DDRB = 0; // Nastavim radek jako INPUT

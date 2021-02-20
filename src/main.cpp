@@ -8,7 +8,7 @@ extern "C"
 uint8_t keymap[0xff];
 struct Keyboard keyboard;
 
-void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t channel = 8)
+void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t channel = 1)
 {
   switch (status)
   {
@@ -81,7 +81,7 @@ void setup()
   DDRD = 0x00; // ROWS INPUT
   PORTD = 0x00;
 
-  DDRB = 0xff; // COLUMNS OUTPUT
+  DDRB = 0b11111000; // COLUMNS OUTPUT
 
   // DDRB = 0x00; // TRANSPOSE INPUT
   // PORTB = 0x00;
