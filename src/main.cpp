@@ -78,13 +78,13 @@ void writeKeymap()
 void setup()
 {
   // Nastaveni pinu
-  DDRA = 0x00; // ROWS INPUT
-  PORTA = 0x00;
+  DDRD = 0x00; // ROWS INPUT
+  PORTD = 0x00;
 
-  DDRC = 0xff; // COLUMNS OUTPUT
+  DDRB = 0xff; // COLUMNS OUTPUT
 
-  DDRB = 0x00; // TRANSPOSE INPUT
-  PORTB = 0x00;
+  // DDRB = 0x00; // TRANSPOSE INPUT
+  // PORTB = 0x00;
 
   uart0_init(UART_BAUD_SELECT(115200, 16000000L));
 
