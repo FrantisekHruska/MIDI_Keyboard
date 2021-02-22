@@ -83,8 +83,8 @@ void setup()
 
   DDRB = 0b11111000; // COLUMNS OUTPUT
 
-  // DDRB = 0x00; // TRANSPOSE INPUT
-  // PORTB = 0x00;
+   DDRC = 0x00; // TRANSPOSE INPUT
+   PORTC = 0x00;
 
   uart0_init(UART_BAUD_SELECT(115200, 16000000L));
 

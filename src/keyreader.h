@@ -21,7 +21,7 @@ struct Keyboard
     uint8_t transpose_buttons_state = 0x00;
 };
 
-// Tyto dve funcke vraci pole pri kazdem precteni jine pole v zavislosti na regs
+// Tyto dve funcke vraci pri kazdem precteni jine pole v zavislosti na regs
 uint8_t *getArray(struct Keyboard *_keyboard)
 {
     if (_keyboard->regs & 0x01)
@@ -57,40 +57,40 @@ uint8_t getOff(struct Keyboard *_keyboard, uint8_t rownum)
 }
 
 // Funkce limituje transpozici aby neprekrocila limit
-// void limitTranspose(struct Keyboard *_keyboard, int8_t lowerLimit, int8_t upperLimit)
-// {
-//     if (_keyboard->transpose > upperLimit)
-//         _keyboard->transpose = upperLimit;
-//     if (_keyboard->transpose < lowerLimit)
-//         _keyboard->transpose = lowerLimit;
-// }
+void limitTranspose(struct Keyboard *_keyboard, int8_t lowerLimit, int8_t upperLimit)
+{
+    if (_keyboard->transpose > upperLimit)
+        _keyboard->transpose = upperLimit;
+    if (_keyboard->transpose < lowerLimit)
+        _keyboard->transpose = lowerLimit;
+}
 
 // Cte tlacitka na transpozici
-// void readTranspose(struct Keyboard *_keyboard)
-// {
-//     _keyboard->transpose_buttons_state += (PINB & 0b00000011);
+void readTranspose(struct Keyboard *_keyboard)
+{
+    _keyboard->transpose_buttons_state += (PINC & 0b00000011);
 
-//     if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
-//     {
-//         // _delay_us(150);
-//         if (_keyboard->transpose_buttons_state & 0x01)
-//             _keyboard->transpose--;
+    if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
+    {
+        // _delay_us(150);
+        if (_keyboard->transpose_buttons_state & 0x01)
+            _keyboard->transpose--;
 
-//         if ((_keyboard->transpose_buttons_state & 0x02) >> 1)
-//             _keyboard->transpose++;
+        if ((_keyboard->transpose_buttons_state & 0x02) >> 1)
+            _keyboard->transpose++;
 
-//         // writeKeymap();
-//     }
-//     _keyboard->transpose_buttons_state <<= 2;
-//     _keyboard->transpose_buttons_state &= 0b00001111;
-//     limitTranspose(_keyboard, -5, 4);
-// }
+        // writeKeymap();
+    }
+    _keyboard->transpose_buttons_state <<= 2;
+    _keyboard->transpose_buttons_state &= 0b00001111;
+    limitTranspose(_keyboard, -5, 4);
+}
 
 // Funkce na cteni keyboardu
 void readKeyboard(struct Keyboard *_keyboard)
 {
     // Prectu transpozici
-    // readTranspose(_keyboard);
+    readTranspose(_keyboard);
     // Zmenim pole do ktereho ukladam
     switchArray(_keyboard);
     // Cyklus ktery cte vystup na PINA a ulozi do pole
