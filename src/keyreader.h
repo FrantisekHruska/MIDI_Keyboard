@@ -8,9 +8,10 @@
 // Hlavni struktura obsahujici promene a pole se kterymi program pracuje
 struct Keyboard
 {
+    uint8_t keymap[0xff];
     // 0xRADEK SLOUPEC (0xROWS COLUMNS)
 
-    // Dve pole na ukladani stavu matice
+    // Dve pole na ukladani dvou stavu matice
     uint8_t output_1[ROWS];
     uint8_t output_2[ROWS];
 
@@ -20,6 +21,26 @@ struct Keyboard
     int8_t transpose = 0;
     uint8_t transpose_buttons_state = 0x00;
 };
+
+// Tato funkce zapise do keymapu tony
+void writeKeymap(struct Keyboard *_keyboard)
+{
+  // Premapovani radku kvuli zapojeni
+  const uint8_t rowmap[ROWS] = {0, 4, 3, 2, 1};
+
+  // Vytvori zakladni ton 
+  // posune ho o tolik oktav kolikrat byla zmacknuta transpozice
+  uint8_t tone = 60 + (_keyboard->transpose * OCTAVE);
+
+  // Zapise na prislusny radek a sloupec ton a zvysi ho o 1
+  for (uint8_t i = 0; i < ROWS; i++)
+  {
+    for (uint8_t j = 0; j < COLUMNS; j++)
+    {
+      _keyboard->keymap[(rowmap[i] << 4) | ((COLUMNS - 1) - j)] = tone++;
+    }
+  }
+}
 
 // Tyto dve funcke vraci pri kazdem precteni jine pole v zavislosti na regs
 uint8_t *getArray(struct Keyboard *_keyboard)
@@ -79,7 +100,7 @@ void readTranspose(struct Keyboard *_keyboard)
         if ((_keyboard->transpose_buttons_state & 0x02) >> 1)
             _keyboard->transpose++;
 
-        // writeKeymap();
+        writeKeymap(_keyboard);
     }
     _keyboard->transpose_buttons_state <<= 2;
     _keyboard->transpose_buttons_state &= 0b00001111;
