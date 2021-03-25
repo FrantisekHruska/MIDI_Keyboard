@@ -57,12 +57,12 @@ void processOutput(struct Keyboard *_keyboard)
 void setup()
 {
   // Nastaveni pinu
-  DDRD = 0x00; // ROWS INPUT
-  PORTD = 0x00;
+  DDRB = 0x00; // ROWS INPUT
+  PORTB = 0x00;
 
-  DDRB = 0b11111000; // COLUMNS OUTPUT
+  DDRD = 0b11111000; // COLUMNS OUTPUT
 
-  DDRC = 0x00; // TRANSPOSE INPUT
+  DDRC = 0b00000111; // 
   PORTC = 0x00;
 
   uart0_init(UART_BAUD_SELECT(115200, 16000000L));
