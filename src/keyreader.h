@@ -37,7 +37,7 @@ void writeKeymap(struct Keyboard *_keyboard)
     {
         for (uint8_t j = 0; j < COLUMNS; j++)
         {
-            _keyboard->keymap[(rowmap[i] << 4) | ((COLUMNS - 1) - j)] = tone++;
+            _keyboard->keymap[(rowmap[i] << 4) | j] = tone++;
         }
     }
 }
@@ -126,7 +126,7 @@ void readKeyboard(struct Keyboard *_keyboard)
     readTranspose(_keyboard);
     // Zmenim pole do ktereho ukladam
     switchArray(_keyboard);
-    // Cyklus ktery cte vystup na PINA a ulozi do pole
+    // Cyklus ktery cte vystup na PINB a ulozi do pole
     for (uint8_t i = 0; i < COLUMNS; i++)
     {
 
@@ -135,7 +135,7 @@ void readKeyboard(struct Keyboard *_keyboard)
 
         _delay_us(150); // debounce delay
 
-        getArray(_keyboard)[i] = ((PINB & 0b00011111) ^ 0xff); // Prectu co je na PINA a ulozim do pole ktere je zrovna aktivni podle promene regs
+        getArray(_keyboard)[i] = ((PINB & 0b00011111) ^ 0xff); // Prectu co je na PINB a ulozim do pole ktere je zrovna aktivni podle promene regs
         // PORTC = 1 << i;
 
         DDRD = 0; // Nastavim radek jako INPUT
