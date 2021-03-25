@@ -25,21 +25,21 @@ struct Keyboard
 // Tato funkce zapise do keymapu tony
 void writeKeymap(struct Keyboard *_keyboard)
 {
-  // Premapovani radku kvuli zapojeni
-  const uint8_t rowmap[ROWS] = {0, 4, 3, 2, 1};
+    // Premapovani radku kvuli zapojeni
+    const uint8_t rowmap[ROWS] = {4, 0, 1, 2, 3};
 
-  // Vytvori zakladni ton 
-  // posune ho o tolik oktav kolikrat byla zmacknuta transpozice
-  uint8_t tone = 60 + (_keyboard->transpose * OCTAVE);
+    // Vytvori zakladni ton
+    // posune ho o tolik oktav kolikrat byla zmacknuta transpozice
+    uint8_t tone = 60 + (_keyboard->transpose * OCTAVE);
 
-  // Zapise na prislusny radek a sloupec ton a zvysi ho o 1
-  for (uint8_t i = 0; i < ROWS; i++)
-  {
-    for (uint8_t j = 0; j < COLUMNS; j++)
+    // Zapise na prislusny radek a sloupec ton a zvysi ho o 1
+    for (uint8_t i = 0; i < ROWS; i++)
     {
-      _keyboard->keymap[(rowmap[i] << 4) | ((COLUMNS - 1) - j)] = tone++;
+        for (uint8_t j = 0; j < COLUMNS; j++)
+        {
+            _keyboard->keymap[(rowmap[i] << 4) | ((COLUMNS - 1) - j)] = tone++;
+        }
     }
-  }
 }
 
 // Tyto dve funcke vraci pri kazdem precteni jine pole v zavislosti na regs
@@ -89,17 +89,29 @@ void limitTranspose(struct Keyboard *_keyboard, int8_t lowerLimit, int8_t upperL
 // Cte tlacitka na transpozici
 void readTranspose(struct Keyboard *_keyboard)
 {
-    _keyboard->transpose_buttons_state += (PINC & 0b00000011);
+    _keyboard->transpose_buttons_state += ((PINC & 0b00011000) >> 3);
 
     if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
     {
-        // _delay_us(150);
         if (_keyboard->transpose_buttons_state & 0x01)
             _keyboard->transpose--;
+        _delay_us(150);
 
         if ((_keyboard->transpose_buttons_state & 0x02) >> 1)
             _keyboard->transpose++;
-
+            
+        if (!_keyboard->transpose)
+        {
+            PORTC = 0b00000011;
+        }
+        else if (_keyboard->transpose < 0)
+        {
+            PORTC = 0b00000010;
+        }
+        else
+        {
+            PORTC = 0b00000001;
+        }
         writeKeymap(_keyboard);
     }
     _keyboard->transpose_buttons_state <<= 2;
@@ -118,15 +130,15 @@ void readKeyboard(struct Keyboard *_keyboard)
     for (uint8_t i = 0; i < COLUMNS; i++)
     {
 
-        DDRB = 1 << i; // Nastavim jeden radek jako OUTPUT LOW
+        DDRD = (1 << i) << 3; // Nastavim jeden radek jako OUTPUT LOW
         // PORTC = 0;
 
         _delay_us(150); // debounce delay
 
-        getArray(_keyboard)[i] = (PIND >> 3) ^ 0xff; // Prectu co je na PINA a ulozim do pole ktere je zrovna aktivni podle promene regs
+        getArray(_keyboard)[i] = ((PINB & 0b00011111) ^ 0xff); // Prectu co je na PINA a ulozim do pole ktere je zrovna aktivni podle promene regs
         // PORTC = 1 << i;
 
-        DDRB = 0; // Nastavim radek jako INPUT
-        PORTB = 0;
+        DDRD = 0; // Nastavim radek jako INPUT
+        PORTD = 0;
     }
 }
