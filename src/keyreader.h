@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "messages.h"
 
 #define COLUMNS 5
 #define ROWS 5
@@ -41,6 +42,7 @@ void writeKeymap(struct Keyboard *_keyboard)
             _keyboard->keymap[(rowmap[i] << 4) | j] = tone++;
         }
     }
+    return;
 }
 
 // Tyto dve funcke vraci pri kazdem precteni jine pole v zavislosti na regs
@@ -67,13 +69,13 @@ void switchArray(struct Keyboard *_keyboard)
 }
 
 // Najde co se zmenilo z 0 na 1 pomoci logicke funkce
-uint8_t getOn(struct Keyboard *_keyboard, uint8_t rownum)
+uint8_t getOff(struct Keyboard *_keyboard, uint8_t rownum)
 {
     return getArrayOld(_keyboard)[rownum] & (getArray(_keyboard)[rownum] ^ 0xff);
 }
 
 // Najde co se zmenilo z 1 na 0 pomoci logicke funkce
-uint8_t getOff(struct Keyboard *_keyboard, uint8_t rownum)
+uint8_t getOn(struct Keyboard *_keyboard, uint8_t rownum)
 {
     return getArray(_keyboard)[rownum] & (getArrayOld(_keyboard)[rownum] ^ 0xff);
 }
@@ -85,6 +87,7 @@ void limitTranspose(struct Keyboard *_keyboard, int8_t lowerLimit, int8_t upperL
         _keyboard->transpose = upperLimit;
     if (_keyboard->transpose < lowerLimit)
         _keyboard->transpose = lowerLimit;
+    return;
 }
 
 void writeTransposeLED(struct Keyboard *_keyboard)
@@ -104,6 +107,7 @@ void writeTransposeLED(struct Keyboard *_keyboard)
         PORTC &= 0b00000111;
         PORTC |= 0b00000011;
     }
+    return;
 }
 
 // Cte tlacitka na transpozici
@@ -111,21 +115,24 @@ void readTranspose(struct Keyboard *_keyboard)
 {
     _keyboard->transpose_buttons_state += ((PINC & 0b00011000) >> 3);
 
-    if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
+    if (((_keyboard->transpose_buttons_state ^ 0xff) & 0x01) & ((_keyboard->transpose_buttons_state >> 2) & 0x01))
     {
-        _delay_us(200);
-        if (_keyboard->transpose_buttons_state & 0x01)
-            _keyboard->transpose--;
-
-        if ((_keyboard->transpose_buttons_state & 0x02) >> 1)
-            _keyboard->transpose++;
-
-        writeKeymap(_keyboard);
-        limitTranspose(_keyboard, -5, 4);
+        allNotesOff(CHANNEL);
+        _keyboard->transpose++;
     }
+    if (((_keyboard->transpose_buttons_state ^ 0xff) & 0x02) & ((_keyboard->transpose_buttons_state >> 2) & 0x02))
+    {
+        allNotesOff(CHANNEL);
+        _keyboard->transpose--;
+    }
+    writeTransposeLED(_keyboard);
+    _delay_us(200);
+    writeKeymap(_keyboard);
+    limitTranspose(_keyboard, -5, 4);
+
     _keyboard->transpose_buttons_state <<= 2;
     _keyboard->transpose_buttons_state &= 0b00001111;
-    writeTransposeLED(_keyboard);
+    return;
 }
 
 // Funkce na cteni keyboardu
@@ -140,14 +147,13 @@ void readKeyboard(struct Keyboard *_keyboard)
     {
 
         DDRD = (1 << i) << 3; // Nastavim jeden radek jako OUTPUT LOW
-        // PORTC = 0;
 
         _delay_us(150); // debounce delay
 
         getArray(_keyboard)[i] = ((PINB & 0b00011111) ^ 0xff); // Prectu co je na PINB a ulozim do pole ktere je zrovna aktivni podle promene regs
-        // PORTC = 1 << i;
 
         DDRD = 0; // Nastavim radek jako INPUT
         PORTD = 0;
     }
+    return;
 }
