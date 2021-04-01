@@ -41,7 +41,7 @@ void setup()
 
   DDRD = 0b11111000; // COLUMNS OUTPUT
 
-  DDRC = 0b00000111; //
+  DDRC |= 0b00000111; // Nastavime LED piny jako output a zbytek nechame jako input
   PORTC = 0b00000011;
 
   uart0_init(UART_BAUD_SELECT(115200, 16000000L));

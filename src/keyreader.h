@@ -22,6 +22,7 @@ struct Keyboard
 
     int8_t transpose = 0;
     uint8_t transpose_buttons_state = 0x00;
+    uint8_t sustain_button_state = 0x00;
 };
 
 // Tato funkce zapise do keymapu tony
@@ -113,7 +114,7 @@ void writeTransposeLED(struct Keyboard *_keyboard)
 // Cte tlacitka na transpozici
 void readTranspose(struct Keyboard *_keyboard)
 {
-    _keyboard->transpose_buttons_state += ((PINC & 0b00011000) >> 3);
+    _keyboard->transpose_buttons_state |= ((PINC & 0b00011000) >> 3);
 
     if (((_keyboard->transpose_buttons_state ^ 0xff) & 0x01) & ((_keyboard->transpose_buttons_state >> 2) & 0x01))
     {
@@ -126,7 +127,7 @@ void readTranspose(struct Keyboard *_keyboard)
         _keyboard->transpose--;
     }
     writeTransposeLED(_keyboard);
-    _delay_us(200);
+    _delay_us(150);
     writeKeymap(_keyboard);
     limitTranspose(_keyboard, -5, 4);
 
@@ -135,17 +136,37 @@ void readTranspose(struct Keyboard *_keyboard)
     return;
 }
 
+void readSustain(struct Keyboard *_keyboard)
+{
+    _keyboard->sustain_button_state += ((PINC & 0b00100000) >> 5);
+
+    if ((((_keyboard->sustain_button_state >> 1) ^ 0xff) & 0x01) & ((_keyboard->sustain_button_state) & 0x01))
+    {
+        sendSustainOff(CHANNEL);
+        PORTC &= 0b00000011;
+    }
+    if ((((_keyboard->sustain_button_state >> 1)) & 0x01) & (((_keyboard->sustain_button_state) ^ 0xff) & 0x01))
+    {
+        sendSustainOn(CHANNEL);
+        PORTC |= 0b00000100;
+    }
+    _keyboard->sustain_button_state <<= 1;
+    _keyboard->sustain_button_state &= 0b00000011;
+    return;
+}
+
 // Funkce na cteni keyboardu
 void readKeyboard(struct Keyboard *_keyboard)
 {
-    // Prectu transpozici
+    // Prectu tlacitka transpozice
     readTranspose(_keyboard);
+    // Prectu sustain tlacitko
+    readSustain(_keyboard);
     // Zmenim pole do ktereho ukladam
     switchArray(_keyboard);
     // Cyklus ktery cte vystup na PINB a ulozi do pole
     for (uint8_t i = 0; i < COLUMNS; i++)
     {
-
         DDRD = (1 << i) << 3; // Nastavim jeden radek jako OUTPUT LOW
 
         _delay_us(150); // debounce delay
