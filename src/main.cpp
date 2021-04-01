@@ -7,7 +7,7 @@ extern "C"
 
 struct Keyboard keyboard;
 
-void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t channel = 1)
+void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 64, uint8_t channel = CHANNEL)
 {
   switch (status)
   {
@@ -28,7 +28,6 @@ void sendMIDI(uint8_t status, uint8_t key, uint8_t velocity = 127, uint8_t chann
 void processOutput(struct Keyboard *_keyboard)
 {
   uint8_t temp = 0x00;
-  // uint8_t keystate;
 
   for (uint8_t i = 0; i < COLUMNS; i++)
   {
@@ -36,20 +35,18 @@ void processOutput(struct Keyboard *_keyboard)
 
     for (uint8_t j = 0; j < ROWS; j++)
     {
-      // keystate = ((temp & (0x01 << j)) >> j);
       if ((temp & (0x01 << j)) >> j)
         if (_keyboard->keymap[(j << 4) | i] >= 0 && _keyboard->keymap[(j << 4) | i] <= 127)
-          sendMIDI(0, _keyboard->keymap[(j << 4) | i], 127);
+          sendMIDI(0, _keyboard->keymap[(j << 4) | i]);
     }
 
     temp = getOff(_keyboard, i);
 
     for (uint8_t j = 0; j < ROWS; j++)
     {
-      // keystate = ((temp & (0x01 << j)) >> j);
       if ((temp & (0x01 << j)) >> j)
         if (_keyboard->keymap[(j << 4) | i] >= 0 && _keyboard->keymap[(j << 4) | i] <= 127)
-          sendMIDI(1, _keyboard->keymap[(j << 4) | i], 127);
+          sendMIDI(1, _keyboard->keymap[(j << 4) | i]);
     }
   }
 }
@@ -63,7 +60,7 @@ void setup()
   DDRD = 0b11111000; // COLUMNS OUTPUT
 
   DDRC = 0b00000111; // 
-  PORTC = 0x00;
+  PORTC = 0b00000111;
 
   uart0_init(UART_BAUD_SELECT(115200, 16000000L));
 

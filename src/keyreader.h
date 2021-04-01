@@ -2,6 +2,7 @@
 
 #define COLUMNS 5
 #define ROWS 5
+#define CHANNEL 1
 
 #define OCTAVE 12
 
@@ -32,7 +33,7 @@ void writeKeymap(struct Keyboard *_keyboard)
     // posune ho o tolik oktav kolikrat byla zmacknuta transpozice
     uint8_t tone = 60 + (_keyboard->transpose * OCTAVE);
 
-    // Zapise na prislusny radek a sloupec ton a zvysi ho o 1
+    // Zapise na prislusny radek a sloupec ton a zvysi ton o 1 v kazde iteraci
     for (uint8_t i = 0; i < ROWS; i++)
     {
         for (uint8_t j = 0; j < COLUMNS; j++)
@@ -86,6 +87,25 @@ void limitTranspose(struct Keyboard *_keyboard, int8_t lowerLimit, int8_t upperL
         _keyboard->transpose = lowerLimit;
 }
 
+void writeTransposeLED(struct Keyboard *_keyboard)
+{
+    if (_keyboard->transpose > 0)
+    {
+        PORTC &= 0b00000101;
+        PORTC |= 0b00000001;
+    }
+    else if (_keyboard->transpose < 0)
+    {
+        PORTC &= 0b00000110;
+        PORTC |= 0b00000010;
+    }
+    else
+    {
+        PORTC &= 0b00000111;
+        PORTC |= 0b00000011;
+    }
+}
+
 // Cte tlacitka na transpozici
 void readTranspose(struct Keyboard *_keyboard)
 {
@@ -93,30 +113,19 @@ void readTranspose(struct Keyboard *_keyboard)
 
     if ((_keyboard->transpose_buttons_state & 0x01) != ((_keyboard->transpose_buttons_state >> 2) & 0x01) || (_keyboard->transpose_buttons_state & 0x02) != ((_keyboard->transpose_buttons_state >> 2) & 0x02))
     {
+        _delay_us(200);
         if (_keyboard->transpose_buttons_state & 0x01)
             _keyboard->transpose--;
-        _delay_us(150);
 
         if ((_keyboard->transpose_buttons_state & 0x02) >> 1)
             _keyboard->transpose++;
-            
-        if (!_keyboard->transpose)
-        {
-            PORTC = 0b00000011;
-        }
-        else if (_keyboard->transpose < 0)
-        {
-            PORTC = 0b00000010;
-        }
-        else
-        {
-            PORTC = 0b00000001;
-        }
+
         writeKeymap(_keyboard);
+        limitTranspose(_keyboard, -5, 4);
     }
     _keyboard->transpose_buttons_state <<= 2;
     _keyboard->transpose_buttons_state &= 0b00001111;
-    limitTranspose(_keyboard, -5, 4);
+    writeTransposeLED(_keyboard);
 }
 
 // Funkce na cteni keyboardu
