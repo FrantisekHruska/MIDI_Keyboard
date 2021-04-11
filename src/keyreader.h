@@ -1,22 +1,25 @@
 #include <Arduino.h>
 #include "messages.h"
 
-#define COLUMNS 5
-#define ROWS 5
+/* Tato knihovna obsahuje funkce dulezite pro cteni stavu keyboardu */
 
-// Hlavni struktura obsahujici promene a pole se kterymi program pracuje
+#define COLUMNS 5 // Definuje pocet sloupcu matice
+#define ROWS 5 // Definuje pocet radku matice
+
+// Hlavni struktura keyboardu obsahujici promene a pole se kterymi program pracuje
 struct Keyboard
 {
-    uint8_t keymap[0xff];
+    uint8_t keymap[0xff]; // Pole pro mapu, podle ktere program urcuje jaky ton je na jake klavese 
     // 0xRADEK SLOUPEC (0xROWS COLUMNS)
 
-    // Dve pole na ukladani dvou stavu matice
+    // Dve pole na ukladani stareho a noveho stavu tlacitek matice
     uint8_t output_1[ROWS];
     uint8_t output_2[ROWS];
 
-    // Promena regs ktera se meni z nuly na jednicku a tim meni do jakeho pole se uklada prectena matice (ouput_1 output_2)
+    // Pomocna promena regs 
     uint8_t regs = 0x00;
 
+    // Pomocne promene pro transpose a sustain tlacitka
     int8_t transpose = 0;
     uint8_t transpose_buttons_state = 0x00;
     uint8_t sustain_button_state = 0x00;
@@ -28,11 +31,10 @@ void writeKeymap(struct Keyboard *_keyboard)
     // Premapovani radku kvuli zapojeni
     const uint8_t rowmap[ROWS] = {4, 0, 1, 2, 3};
 
-    // Vytvori zakladni ton
-    // posune ho o tolik oktav kolikrat byla zmacknuta transpozice
+    // Vytvori zakladni ton (60) a posune ho o tolik oktav kolik je definovano v promene transpose
     uint8_t tone = 60 + (_keyboard->transpose * OCTAVE);
 
-    // Zapise na prislusny radek a sloupec ton a zvysi ton o 1 v kazde iteraci
+    // Tento cyklus zapise ton na prislusny radek a sloupec a zvysi ton o 1 v kazde iteraci
     for (uint8_t i = 0; i < ROWS; i++)
     {
         for (uint8_t j = 0; j < COLUMNS; j++)
@@ -66,13 +68,13 @@ void switchArray(struct Keyboard *_keyboard)
     return;
 }
 
-// Najde co se zmenilo z 0 na 1 pomoci logicke funkce
+// Najde co se zmenilo z 1 na 0 v radku stareho a noveho polem pomoci logicke funkce
 uint8_t getOff(struct Keyboard *_keyboard, uint8_t rownum)
 {
     return getArrayOld(_keyboard)[rownum] & (getArray(_keyboard)[rownum] ^ 0xff);
 }
 
-// Najde co se zmenilo z 1 na 0 pomoci logicke funkce
+// Najde co se zmenilo z 1 na 0 v radku stareho a noveho polem pomoci logicke funkce
 uint8_t getOn(struct Keyboard *_keyboard, uint8_t rownum)
 {
     return getArray(_keyboard)[rownum] & (getArrayOld(_keyboard)[rownum] ^ 0xff);
@@ -168,7 +170,7 @@ void readKeyboard(struct Keyboard *_keyboard)
 
         _delay_us(150); // debounce delay
 
-        getArray(_keyboard)[i] = ((PINB & 0b00011111) ^ 0xff); // Prectu co je na PINB a ulozim do pole ktere je zrovna aktivni podle promene regs
+        getArray(_keyboard)[i] = ((PINB & 0b00011111) ^ 0xff); // Prectu co je na PINB a ulozim do pole ktere je zrovna aktivni
 
         DDRD = 0; // Nastavim radek jako INPUT
         PORTD = 0;
