@@ -3,12 +3,13 @@ extern "C"
 {
 #include <uart.h>
 }
+/* Tato knihovna obsahuje funkce k zavolani vsech MIDI zprav keyboardu. */
 
-#define CHANNEL 0
-#define OCTAVE 12
+#define CHANNEL 0 // Definuje MIDI kanal
+#define OCTAVE 12 // Definuje o kolik pultonu posouva oktava
 
-/*Tato knihovna obsahuje vsechny MIDI zpravy pouzite v keyboardu*/
 
+// MIDI zpravy
 void sendNoteOff(uint8_t channel, uint8_t key, uint8_t velocity = 64)
 {
     uart0_putc(0x80 | channel);

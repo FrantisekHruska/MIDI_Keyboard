@@ -1,15 +1,15 @@
 #include <Arduino.h>
 #include "keyreader.h"
-extern "C"
-{
-#include <uart.h>
-}
+#include "messages.h"
+
+/* Tento soubor je hlavni cast programu celeho keyboardu */
+
 
 struct Keyboard keyboard;
 
-void processOutput(struct Keyboard *_keyboard)
+void processOutput(struct Keyboard *_keyboard)// Funkce co zpracuje vystup keyboardu
 {
-  uint8_t temp = 0x00;
+  uint8_t temp = 0x00; // Docasna promena
 
   for (uint8_t i = 0; i < COLUMNS; i++)
   {
@@ -33,23 +33,23 @@ void processOutput(struct Keyboard *_keyboard)
   }
 }
 
-void setup()
+void setup() // Zde se nastavuji piny pomoci registru
 {
-  // Nastaveni pinu
-  DDRB = 0x00; // ROWS INPUT
+// Porty matice
+  DDRB = 0x00; // Radky nastavime jako INPUT
   PORTB = 0x00;
+  DDRD = 0b11111000; // Sloupce nastavime OUTPUT
 
-  DDRD = 0b11111000; // COLUMNS OUTPUT
-
-  DDRC |= 0b00000111; // Nastavime LED piny jako output a zbytek nechame jako input
+// Nastavime portC tak aby piny na kterych je LED byl output a na pinech pro cteni tlacitek INPUT
+  DDRC |= 0b00000111; 
   PORTC = 0b00000011;
 
-  uart0_init(UART_BAUD_SELECT(115200, 16000000L));
-  writeKeymap(&keyboard);
+  uart0_init(UART_BAUD_SELECT(115200, 16000000L)); // Nastaveni baud rate UART
+  writeKeymap(&keyboard); 
 }
 
-void loop()
+void loop() // Hlavni cyklus programu
 {
-  readKeyboard(&keyboard);
-  processOutput(&keyboard);
+  readKeyboard(&keyboard); // Precte keyboard
+  processOutput(&keyboard); // Zpracuje vystup a odesle prislusne MIDI zpravy
 }
