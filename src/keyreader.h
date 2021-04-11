@@ -3,9 +3,6 @@
 
 #define COLUMNS 5
 #define ROWS 5
-#define CHANNEL 1
-
-#define OCTAVE 12
 
 // Hlavni struktura obsahujici promene a pole se kterymi program pracuje
 struct Keyboard
@@ -158,9 +155,9 @@ void readSustain(struct Keyboard *_keyboard)
 // Funkce na cteni keyboardu
 void readKeyboard(struct Keyboard *_keyboard)
 {
-    // Prectu tlacitka transpozice
+    // Prectu stav tlacitek transpozice
     readTranspose(_keyboard);
-    // Prectu sustain tlacitko
+    // Prectu stav sustain tlacitka
     readSustain(_keyboard);
     // Zmenim pole do ktereho ukladam
     switchArray(_keyboard);
