@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "keyreader.h"
-#include "messages.h"
+
 
 /* Tento soubor je hlavni cast programu celeho keyboardu */
 
